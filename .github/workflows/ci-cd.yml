@@ -23,9 +23,14 @@ jobs:
         run: npm install
         working-directory: ./app
 
-      - name: Run basic test
-        run: node app/index.js & sleep 5 && curl -I http://localhost:3000
+    #   - name: Run basic test
+    #     run: node app/index.js & sleep 5 && curl -I http://localhost:3000
+    #     working-directory: ./app
+
+      - name: Run basic test      
+        run: node index.js & sleep 5 && curl -I http://localhost:3000
         working-directory: ./app
+  
 
   sonarcloud:
     runs-on: ubuntu-latest
