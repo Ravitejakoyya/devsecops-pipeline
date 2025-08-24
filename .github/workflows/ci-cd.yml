@@ -43,17 +43,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Run SonarCloud scan
+      - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v1
-        with:
-          args: >
-            -Dsonar.projectKey=Ravitejakoyya_devsecops-pipeline
-            -Dsonar.organization=ravitejakoyya
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=app
-            -X  # Optional for debug
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+            projectBaseDir: ./app
+
 
   snyk-scan:
     runs-on: ubuntu-latest
@@ -67,10 +63,10 @@ jobs:
         uses: snyk/actions/node@master
         with:
             command: test
-            args: --all-projects
         env:
             SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-            working-directory: ./app
+            working-directory: app
+
             
   docker-scan:
     runs-on: ubuntu-latest
