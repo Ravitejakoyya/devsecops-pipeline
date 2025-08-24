@@ -51,23 +51,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-#   sonarcloud:
-#     runs-on: ubuntu-latest
-#     needs: build-test
-
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
-
-#       - name: SonarCloud Scan
-#         uses: SonarSource/sonarcloud-github-action@v1
-#         with:
-#           args: >
-#             -Dsonar.projectKey=Ravitejakoyya_devsecops-pipeline
-#             -Dsonar.organization=ravitejakoyya
-#         env:
-#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   snyk-scan:
     runs-on: ubuntu-latest
     needs: build-test
@@ -76,12 +59,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Snyk Scan
-        uses: snyk/actions/node@master
-        with:
-          command: test
+      - name: Run Snyk vulnerability scan
+        run: snyk test
+        working-directory: ./app
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}  
 
   docker-scan:
     runs-on: ubuntu-latest
