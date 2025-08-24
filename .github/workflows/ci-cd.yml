@@ -1,0 +1,78 @@
+name: DevSecOps CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./app
+
+      - name: Run basic test
+        run: node app/index.js & sleep 5 && curl -I http://localhost:3000
+        working-directory: ./app
+
+  sonarcloud:
+    runs-on: ubuntu-latest
+    needs: build-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1
+        with:
+          args: >
+            -Dsonar.projectKey=Ravitejakoyya_devsecops-pipeline
+            -Dsonar.organization=ravitejakoyya
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  snyk-scan:
+    runs-on: ubuntu-latest
+    needs: build-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Snyk Scan
+        uses: snyk/actions/node@master
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  docker-scan:
+    runs-on: ubuntu-latest
+    needs: build-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t myapp ./app
+
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: myapp
+          format: table
+          exit-code: 0
